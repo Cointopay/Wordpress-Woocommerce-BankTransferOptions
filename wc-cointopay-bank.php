@@ -182,6 +182,9 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php' ) === true ) {
 						'result'   => 'success',
 						'redirect' => $results->shortURL,
 					);
+				} else {
+					$error_msg = str_replace('"', "", $response['body']);
+					wc_add_notice($error_msg, 'error');
 				}
 			}
 

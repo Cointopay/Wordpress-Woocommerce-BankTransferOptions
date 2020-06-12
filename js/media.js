@@ -1,5 +1,5 @@
 jQuery(document).ready(function ($) {
-    var btnUplEoad = $('#woocommerce_cointopay_banl_upload-btn');
+    var btnUplEoad = $('#woocommerce_cointopay_bank_upload-btn');
     var logolm = $('#woocommerce_cointopay_bank_logo');
     btnUpload.val('Upload Logo');
     displayLogo();
