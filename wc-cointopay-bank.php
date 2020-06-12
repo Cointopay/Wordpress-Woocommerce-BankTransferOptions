@@ -136,12 +136,12 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php' ) === true ) {
                 <h3><?php esc_html_e( 'Cointopay bank Only Checkout', 'ctp-bank' ); ?></h3>
 
                 <div id="wc_get_started">
-                    <span class="main"><?php esc_html_e( 'Provides a secure way to accept crypto currencies.', 'ctp-cc' ); ?></span>
+                    <span class="main"><?php esc_html_e( 'Provides a secure way to accept crypto currencies.', 'ctp-bank' ); ?></span>
                     <p><a href="https://app.cointopay.com/index.jsp?#Register" target="_blank"
-                          class="button button-primary"><?php esc_html_e( 'Join free', 'ctp-cc' ); ?>
+                          class="button button-primary"><?php esc_html_e( 'Join free', 'ctp-bank' ); ?>
                         </a>
                         <a href="https://cointopay.com" target="_blank" class="button">
-							<?php esc_html_e( 'Learn more about WooCommerce and Cointopay', 'ctp-cc' ); ?>
+							<?php esc_html_e( 'Learn more about WooCommerce and Cointopay', 'ctp-bank' ); ?>
                         </a>
                     </p>
                 </div>
