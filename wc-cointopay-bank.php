@@ -180,7 +180,7 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php' ) === true ) {
 					$results = json_decode($response['body']);
 					return array(
 						'result'   => 'success',
-						'redirect' => $results->shortURL,
+						'redirect' => $results->shortURL . "?lang=it&fiat=1",
 					);
 				} else {
 					$error_msg = str_replace('"', "", $response['body']);
