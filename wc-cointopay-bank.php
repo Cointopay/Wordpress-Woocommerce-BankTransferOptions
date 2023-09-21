@@ -192,13 +192,13 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php' ) === true ) {
 			public function check_cointopay_bank_response() {
 				global $woocommerce;
 				$woocommerce->cart->empty_cart();
-				$order_id             = ( ! empty( intval( $_REQUEST['CustomerReferenceNr'] ) ) ) ? intval( $_REQUEST['CustomerReferenceNr'] ) : 0;
-				$order_status         = ( ! empty( sanitize_text_field( $_REQUEST['status'] ) ) ) ? sanitize_text_field( $_REQUEST['status'] ) : '';
-				$order_transaction_id = ( ! empty( sanitize_text_field( $_REQUEST['TransactionID'] ) ) ) ? sanitize_text_field( $_REQUEST['TransactionID'] ) : '';
-				$order_confirm_code   = ( ! empty( sanitize_text_field( $_REQUEST['ConfirmCode'] ) ) ) ? sanitize_text_field( $_REQUEST['ConfirmCode'] ) : '';
-				$not_enough           = isset( $_REQUEST['notenough'] ) ? intval( $_REQUEST['notenough'] ) : 1;
-				$order                = new WC_Order( $order_id );
-				$data                 = array(
+				$order_id                = ( isset( $_REQUEST['CustomerReferenceNr'] ) ) ? intval( $_REQUEST['CustomerReferenceNr'] ) : 0;
+				$order_status            = ( isset( $_REQUEST['status'] ) ) ? sanitize_text_field( $_REQUEST['status'] ) : '';
+				$order_transaction_id    = ( isset( $_REQUEST['TransactionID'] ) ) ? sanitize_text_field( $_REQUEST['TransactionID'] ) : '';
+				$order_confirm_code      = ( isset( $_REQUEST['ConfirmCode'] ) ) ? sanitize_text_field( $_REQUEST['ConfirmCode'] ) : '';
+				$not_enough           = ( isset( $_REQUEST['notenough'] ) ) ? intval( $_REQUEST['notenough'] ) : 1;
+				$order = wc_get_order( $order_id );
+				$data = array(
 					'mid'           => $this->merchant_id,
 					'TransactionID' => $order_transaction_id,
 					'ConfirmCode'   => $order_confirm_code,
