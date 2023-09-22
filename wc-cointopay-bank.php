@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Cointopay.com Bank
  * Description: Extends WooCommerce with bank payments gateway.
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author: Cointopay
  *
  * @package  WooCommerce
