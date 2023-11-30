@@ -181,7 +181,7 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php' ) === true ) {
 					$results = json_decode($response['body']);
 					return array(
 						'result'   => 'success',
-						'redirect' => $results->shortURL . "?fiat=1",
+						'redirect' => $results->shortURL . "?tab=fiat",
 					);
 				} else {
 					$error_msg = str_replace('"', "", $response['body']);
