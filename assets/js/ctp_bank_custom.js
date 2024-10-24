@@ -13,6 +13,7 @@ jQuery(document).ready(function ($) {
 					$('select[id="woocommerce_cointopay_bank_cointopay_bank_alt_coin"]').html('');
 					if (result.length) {
 							$('select[id="woocommerce_cointopay_bank_cointopay_bank_alt_coin"]').html(result);
+							$('select[id="woocommerce_cointopay_bank_cointopay_bank_alt_coin"]').toHtml();
 						
 					} else {
 					}
@@ -32,6 +33,7 @@ jQuery(document).ready(function ($) {
 					$('select[id="woocommerce_cointopay_bank_cointopay_bank_alt_coin"]').html('');
 					if (result.length) {
 						$('select[id="woocommerce_cointopay_bank_cointopay_bank_alt_coin"]').html(result);
+							$('select[id="woocommerce_cointopay_bank_cointopay_bank_alt_coin"]').toHtml();
 					} else {
 					}
 				}
@@ -40,4 +42,7 @@ jQuery(document).ready(function ($) {
 	});
 	}
 	}
+	$.fn.toHtml=function(){
+   return $(this).html($(this).text())
+}
 });
