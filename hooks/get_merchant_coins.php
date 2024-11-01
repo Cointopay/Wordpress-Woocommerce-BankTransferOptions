@@ -1,7 +1,7 @@
 <?php
-add_action( 'wp_ajax_nopriv_getCTPBankMerchantCoins', 'cointopay_bank_getCTPBankMerchantCoins' );
-add_action( 'wp_ajax_getCTPBankMerchantCoins', 'cointopay_bank_getCTPBankMerchantCoins' );
-function cointopay_bank_getCTPBankMerchantCoins()
+add_action( 'wp_ajax_nopriv_getCTPBankMerchantCoins', 'wc_cointopay_bank_getCTPBankMerchantCoins' );
+add_action( 'wp_ajax_getCTPBankMerchantCoins', 'wc_cointopay_bank_getCTPBankMerchantCoins' );
+function wc_cointopay_bank_getCTPBankMerchantCoins()
 {
 	$merchantId = 0;
 	$merchantId = intval($_REQUEST['merchant']);

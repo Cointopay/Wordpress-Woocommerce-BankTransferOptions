@@ -208,7 +208,6 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 				$order_status            = (isset($_REQUEST['status'])) ? sanitize_text_field($_REQUEST['status']) : '';
 				$order_transaction_id    = (isset($_REQUEST['TransactionID'])) ? sanitize_text_field($_REQUEST['TransactionID']) : '';
 				$order_confirm_code      = (isset($_REQUEST['ConfirmCode'])) ? sanitize_text_field($_REQUEST['ConfirmCode']) : '';
-				$stripe_transaction_code = (isset($_REQUEST['stripe_transaction_id'])) ? sanitize_text_field($_REQUEST['stripe_transaction_id']) : '';
 				$not_enough              = (isset($_REQUEST['notenough'])) ? intval($_REQUEST['notenough']) : 1;
 				$order = wc_get_order($order_id);
 				$data = array(
@@ -260,7 +259,7 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 					$order->add_order_note(esc_html__('IPN: Update status event for Cointopay Bank to status COMPLETED:', 'woocommerce') . ' ' . $order_id);
 
 					get_header();
-					printf('<div class="container" style="text-align: center;"><div><div><br><br><h2 style="color:#0fad00">' . esc_html__('Subankess!', 'wc-cointopay-bank-only') . '</h2><img style="width: 100px; margin: 0 auto 20px;"  src="%s"><p style="font-size:20px;color:#5C5C5C;">' . esc_html__('The payment has been received and confirmed subankessfully.', 'wc-cointopay-bank-only') . '</p><a href="%s" style="background-color: #0fad00;border: none;color: white; padding: 15px 32px; text-align: center;text-decoration: none;display: inline-block; font-size: 16px;" >' . esc_html__('Back', 'wc-cointopay-bank-only') . '</a><br><br><br><br></div></div></div>', esc_url(WC_Cointopay_Bank_Payments::plugin_url() . '/assets/images/check.png'),  esc_url(site_url()));
+					printf('<div class="container" style="text-align: center;"><div><div><br><br><h2 style="color:#0fad00">' . esc_html__('Successfully!', 'wc-cointopay-bank-only') . '</h2><img style="width: 100px; margin: 0 auto 20px;"  src="%s"><p style="font-size:20px;color:#5C5C5C;">' . esc_html__('The payment has been received and confirmed successfully.', 'wc-cointopay-bank-only') . '</p><a href="%s" style="background-color: #0fad00;border: none;color: white; padding: 15px 32px; text-align: center;text-decoration: none;display: inline-block; font-size: 16px;" >' . esc_html__('Back', 'wc-cointopay-bank-only') . '</a><br><br><br><br></div></div></div>', esc_url(WC_Cointopay_Bank_Payments::plugin_url() . '/assets/images/check.png'),  esc_url(site_url()));
 					get_footer();
 					exit;
 				} elseif ('failed' === $order_status && 1 === $not_enough) {
