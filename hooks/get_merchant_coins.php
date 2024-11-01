@@ -3,9 +3,9 @@ add_action( 'wp_ajax_nopriv_getCTPBankMerchantCoins', 'wc_cointopay_bank_getCTPB
 add_action( 'wp_ajax_getCTPBankMerchantCoins', 'wc_cointopay_bank_getCTPBankMerchantCoins' );
 function wc_cointopay_bank_getCTPBankMerchantCoins()
 {
-	$merchantId = 0;
-	$merchantId = intval($_REQUEST['merchant']);
-	if (isset($merchantId) && $merchantId !== 0) {
+	check_ajax_referer('cointopay_bank_ajax_nonce', 'nonce');
+	$merchantId = isset($_REQUEST['merchant']) ? intval($_REQUEST['merchant']) : 0;
+	if ($merchantId !== 0) {
 		$option = '';
 		$arr = cointopay_bank_getCTPCoins($merchantId);
 		foreach ($arr as $key => $value) {

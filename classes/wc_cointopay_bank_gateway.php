@@ -74,7 +74,8 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 			wp_enqueue_media();
 		}
 		wp_enqueue_script('cointopay_bank_js', WC_Cointopay_Bank_Payments::plugin_url() . '/assets/js/ctp_bank_custom.js', array('jquery'), '1.0', false);
-		wp_localize_script('cointopay_bank_js', 'ajaxurlctpbank', array('ajaxurl' => admin_url('admin-ajax.php')));
+		wp_localize_script('cointopay_bank_js', 'ajaxurlctpbank', array('ajaxurl' => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('cointopay_bank_ajax_nonce')));
 	}
 	
 	/**
@@ -172,8 +173,9 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 			endforeach;
 		endif;
 		$url      = 'https://app.cointopay.com/MerchantAPI?Checkout=true';
+		$nonce = wp_create_nonce('cointopay_bank_response');
 		$params   = array(
-			'body' => 'SecurityCode=' . $this->secret . '&MerchantID=' . $this->merchant_id . '&Amount=' . number_format($order->get_total(), 8, '.', '') . '&AltCoinID=' . $this->alt_coin_id . '&output=json&inputCurrency=' . get_woocommerce_currency() . '&CustomerReferenceNr=' . $order_id . '-' . $order->get_order_number() . '&returnurl=' . rawurlencode(esc_url($this->get_return_url($order))) . '&transactionconfirmurl=' . site_url('/?wc-api=WC_CointopayBank_Gateway') . '&transactionfailurl=' . rawurlencode(esc_url($order->get_cancel_order_url())),
+			'body' => 'SecurityCode=' . $this->secret . '&MerchantID=' . $this->merchant_id . '&Amount=' . number_format($order->get_total(), 8, '.', '') . '&AltCoinID=' . $this->alt_coin_id . '&output=json&inputCurrency=' . get_woocommerce_currency() . '&CustomerReferenceNr=' . $order_id . '-' . $order->get_order_number() . '&returnurl=' . rawurlencode(esc_url($this->get_return_url($order))) . '&transactionconfirmurl=' . site_url('/?wc-api=WC_CointopayBank_Gateway&=nonce' . $nonce) . '&transactionfailurl=' . rawurlencode(esc_url($order->get_cancel_order_url())),
 		);
 		$response = wp_safe_remote_post($url, $params);
 		if ((false === is_wp_error($response)) && (200 === $response['response']['code']) && ('OK' === $response['response']['message'])) {
@@ -190,7 +192,7 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 
 	private function extractOrderId(string $customer_reference_nr)
 	{
-		return intval(explode('-', sanitize_text_field($customer_reference_nr))[0]);
+		return intval(explode('-', $customer_reference_nr)[0]);
 	}
 
 	public function cointopay_bank_check_response()
@@ -200,15 +202,16 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 		}
 		if(isset($_GET['wc-api']) && isset($_GET['CustomerReferenceNr']) && isset($_GET['TransactionID']))
 		{
-			$ctp_bank = sanitize_text_field($_REQUEST['wc-api']);
+			$ctp_bank = (isset($_GET['wc-api'])) ? sanitize_text_field(wp_unslash($_GET['wc-api'])) : '';
 			if ($ctp_bank == 'WC_CointopayBank_Gateway') {
+				check_ajax_referer('cointopay_bank_response', 'nonce');
 				global $woocommerce;
 				$woocommerce->cart->empty_cart();
-				$order_id                = (isset($_REQUEST['CustomerReferenceNr'])) ? $this->extractOrderId($_REQUEST['CustomerReferenceNr']) : 0;
-				$order_status            = (isset($_REQUEST['status'])) ? sanitize_text_field($_REQUEST['status']) : '';
-				$order_transaction_id    = (isset($_REQUEST['TransactionID'])) ? sanitize_text_field($_REQUEST['TransactionID']) : '';
-				$order_confirm_code      = (isset($_REQUEST['ConfirmCode'])) ? sanitize_text_field($_REQUEST['ConfirmCode']) : '';
-				$not_enough              = (isset($_REQUEST['notenough'])) ? intval($_REQUEST['notenough']) : 1;
+				$order_id                = (isset($_GET['CustomerReferenceNr'])) ? $this->extractOrderId(sanitize_text_field(wp_unslash($_GET['CustomerReferenceNr']))) : 0;
+				$order_status            = (isset($_GET['status'])) ? sanitize_text_field(wp_unslash($_GET['status'])) : '';
+				$order_transaction_id    = (isset($_GET['TransactionID'])) ? sanitize_text_field(wp_unslash($_GET['TransactionID'])) : '';
+				$order_confirm_code      = (isset($_GET['ConfirmCode'])) ? sanitize_text_field(wp_unslash($_GET['ConfirmCode'])) : '';
+				$not_enough              = (isset($_GET['notenough'])) ? intval($_GET['notenough']) : 1;
 				$order = wc_get_order($order_id);
 				$data = array(
 					'mid'           => $this->merchant_id,
@@ -249,27 +252,27 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 				if (('paid' === $order_status) && (0 === $not_enough)) {
 					// Do your magic here, and return 200 OK to Cointopay.
 					if ('completed' === $order->get_status()) {
-						$order->update_status('processing', sprintf(esc_html__('IPN: Payment completed notification from Cointopay', 'woocommerce')));
+						$order->update_status('processing', sprintf(esc_html__('IPN: Payment completed notification from Cointopay', 'wc-cointopay-bank-only')));
 					} else {
 						$order->payment_complete();
-						$order->update_status('processing', sprintf(esc_html__('IPN: Payment completed notification from Cointopay', 'woocommerce')));
+						$order->update_status('processing', sprintf(esc_html__('IPN: Payment completed notification from Cointopay', 'wc-cointopay-bank-only')));
 					}
 					$order->save();
 
-					$order->add_order_note(esc_html__('IPN: Update status event for Cointopay Bank to status COMPLETED:', 'woocommerce') . ' ' . $order_id);
+					$order->add_order_note(esc_html__('IPN: Update status event for Cointopay Bank to status COMPLETED:', 'wc-cointopay-bank-only') . ' ' . $order_id);
 
 					get_header();
 					printf('<div class="container" style="text-align: center;"><div><div><br><br><h2 style="color:#0fad00">' . esc_html__('Successfully!', 'wc-cointopay-bank-only') . '</h2><img style="width: 100px; margin: 0 auto 20px;"  src="%s"><p style="font-size:20px;color:#5C5C5C;">' . esc_html__('The payment has been received and confirmed successfully.', 'wc-cointopay-bank-only') . '</p><a href="%s" style="background-color: #0fad00;border: none;color: white; padding: 15px 32px; text-align: center;text-decoration: none;display: inline-block; font-size: 16px;" >' . esc_html__('Back', 'wc-cointopay-bank-only') . '</a><br><br><br><br></div></div></div>', esc_url(WC_Cointopay_Bank_Payments::plugin_url() . '/assets/images/check.png'),  esc_url(site_url()));
 					get_footer();
 					exit;
 				} elseif ('failed' === $order_status && 1 === $not_enough) {
-					$order->update_status('on-hold', sprintf(esc_html__('IPN: Payment failed notification from Cointopay because not enough', 'woocommerce')));
+					$order->update_status('on-hold', sprintf(esc_html__('IPN: Payment failed notification from Cointopay because not enough', 'wc-cointopay-bank-only')));
 					get_header();
 					printf('<div class="container" style="text-align: center;"><div><div><br><br><h2 style="color:#ff0000">' . esc_html__('Failure!', 'wc-cointopay-bank-only') . '</h2><img style="width: 100px; margin: 0 auto 20px;"  src="%s"><p style="font-size:20px;color:#5C5C5C;">' . esc_html__('The payment has been failed.', 'wc-cointopay-bank-only') . '</p><a href="%s" style="background-color: #ff0000;border: none;color: white; padding: 15px 32px; text-align: center;text-decoration: none;display: inline-block; font-size: 16px;" >' . esc_html__('Back', 'wc-cointopay-bank-only') . '</a><br><br></div></div></div>', esc_url(WC_Cointopay_Bank_Payments::plugin_url() . '/assets/images/fail.png'),  esc_url(site_url()));
 					get_footer();
 					exit;
 				} else {
-					$order->update_status('failed', sprintf(esc_html__('IPN: Payment failed notification from Cointopay', 'woocommerce')));
+					$order->update_status('failed', sprintf(esc_html__('IPN: Payment failed notification from Cointopay', 'wc-cointopay-bank-only')));
 					get_header();
 					printf('<div class="container" style="text-align: center;"><div><div><br><br><h2 style="color:#ff0000">' . esc_html__('Failure!', 'wc-cointopay-bank-only') . '</h2><img style="width: 100px; margin: 0 auto 20px;"  src="%s"><p style="font-size:20px;color:#5C5C5C;">' . esc_html__('The payment has been failed.', 'wc-cointopay-bank-only') . '</p><a href="%s" style="background-color: #ff0000;border: none;color: white; padding: 15px 32px; text-align: center;text-decoration: none;display: inline-block; font-size: 16px;" >' . esc_html__('Back', 'wc-cointopay-bank-only') . '</a><br><br></div></div></div>', esc_url(WC_Cointopay_Bank_Payments::plugin_url() . '/assets/images/fail.png'),  esc_url(site_url()));
 					get_footer();

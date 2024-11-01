@@ -7,7 +7,7 @@ console.log('awa');
 const settings = getSetting( 'cointopay_bank_data', {} );
 console.log(settings);
 const defaultLabel = __(
-	'WooCommerce Cointopay.com Bank',
+	'Cointopay.com Bank Only',
 	'woocommerce'
 );
 
