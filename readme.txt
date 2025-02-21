@@ -1,7 +1,7 @@
 === Cointopay.com Bank Only ===
 Contributors: Cointopay, therightsw, goshila
 Requires at least: 3.8.1
-Tested up to: 6.6.2
+Tested up to: 6.7
 Stable tag: 1.2.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
