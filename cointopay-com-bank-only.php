@@ -4,7 +4,7 @@
  * Description: Extends WooCommerce with bank payments gateway.
  * Version: 1.2.3
  * Author: Cointopay
- * Text Domain: wc-cointopay-bank-only
+ * Text Domain: cointopay-com-bank-only
  * @package  WooCommerce
  * @author   Cointopay <info@cointopay.com>
  * @link     cointopay.com
