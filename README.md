@@ -12,7 +12,7 @@ Please follow the Wordpress WooCommerce Cointopay Bank Transfer Plugin install i
 
 # Version:
 
-- Version 1.2.6
+- Version 1.2.7
 
 # Configuration Instructions
 
