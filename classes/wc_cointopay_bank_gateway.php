@@ -205,7 +205,7 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 		{
 			$ctp_bank = (isset($_GET['wc-api'])) ? sanitize_text_field(wp_unslash($_GET['wc-api'])) : '';
 			if ($ctp_bank == 'WC_CointopayBank_Gateway') {
-				check_ajax_referer('cointopay_bank_response', 'nonce');
+				//check_ajax_referer('cointopay_bank_response', 'nonce');
 				global $woocommerce;
 				$woocommerce->cart->empty_cart();
 				$order_id                = (isset($_GET['CustomerReferenceNr'])) ? $this->extractOrderId(sanitize_text_field(wp_unslash($_GET['CustomerReferenceNr']))) : 0;
