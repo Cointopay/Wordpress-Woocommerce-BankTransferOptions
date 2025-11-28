@@ -1,8 +1,8 @@
 === Cointopay.com Bank Only ===
 Contributors: Cointopay, therightsw, goshila
 Requires at least: 6.6
-Tested up to: 6.8.2
-Stable tag: 1.2.7
+Tested up to: 6.8.3
+Stable tag: 1.2.8
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -26,8 +26,8 @@ Bank payment plugin for Wordpress WooCommerce, you can receive bank payments int
 6. Save changes.
 
 *Tested on:*
-WordPress 6.6 --> 6.8.2
-WooCommerce 8.1 --> 10.0.04
+WordPress 6.6 --> 6.8.3
+WooCommerce 8.1 --> 10.3.5
 
 *Notes:*
 - Please note that the default checkout currency is Bitcoin, the customer can pay via other currencies as well by clicking the currency icon. Enable other currencies on Cointopay.com by going to Account > Wallet preferences and selecting multiple currencies e.g. Bitcoin, Litecoin, Ethereum, Ripple etc.
