@@ -252,7 +252,7 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 				}
 				if (('paid' === $order_status) && (0 === $not_enough)) {
 					// Do your magic here, and return 200 OK to Cointopay.
-					status = $order->get_status();
+					$status = $order->get_status();
 
 					if ( 'completed' === $status || 'processing' === $status ) {
 					    // Do nothing if order is already completed or processing
