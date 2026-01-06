@@ -263,7 +263,7 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 						// Add order note
 						$order->add_order_note( __( 'IPN: Update event for Cointopay from status '.$status.' to '.$new_status.':', 'woocommerce' ) . ' ' . $order_id );
 					}
-
+					
 					get_header();
 					printf('<div class="container" style="text-align: center;"><div><div><br><br><h2 style="color:#0fad00">' . esc_html__('Successfully!', 'cointopay-com-bank-only') . '</h2><img style="width: 100px; margin: 0 auto 20px;"  src="%s"><p style="font-size:20px;color:#5C5C5C;">' . esc_html__('The payment has been received and confirmed successfully.', 'cointopay-com-bank-only') . '</p><a href="%s" style="background-color: #0fad00;border: none;color: white; padding: 15px 32px; text-align: center;text-decoration: none;display: inline-block; font-size: 16px;" >' . esc_html__('Back', 'cointopay-com-bank-only') . '</a><br><br><br><br></div></div></div>', esc_url(WC_Cointopay_Bank_Payments::plugin_url() . '/assets/images/check.png'),  esc_url(site_url()));
 					get_footer();
