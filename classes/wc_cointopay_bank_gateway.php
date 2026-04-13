@@ -261,7 +261,15 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 					    $order->payment_complete(); // This automatically sets status to processing
 					    $new_status = $order->get_status();
 						// Add order note
-						$order->add_order_note( __( 'IPN: Update event for Cointopay from status '.$status.' to '.$new_status.':', 'woocommerce' ) . ' ' . $order_id );
+						//$order->add_order_note( __( 'IPN: Update event for Cointopay from status '.$status.' to '.$new_status.':', 'cointopay-com-bank-only' ) . ' ' . $order_id );
+						$message = sprintf( 
+    					__( 'IPN: Update event for Cointopay from status %1$s to %2$s: %3$s', 'cointopay-com-bank-only' ), 
+    					$status, 
+    					$new_status,
+    					$order_id
+						);
+
+						$order->add_order_note( $message );
 					}
 					
 					get_header();
