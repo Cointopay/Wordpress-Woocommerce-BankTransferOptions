@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cointopay.com Bank Only
  * Description: Extends WooCommerce with bank payments gateway.
- * Version: 1.3.1
+ * Version: 1.3.2
  * Author: Cointopay
  * Text Domain: cointopay-com-bank-only
  * @package  WooCommerce
@@ -12,7 +12,7 @@
  * License: GPL v3.0
  */
 
-defined('ABSPATH') || exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 require_once plugin_dir_path( __FILE__ ) . 'hooks/get_merchant_coins.php';
 
@@ -25,6 +25,7 @@ function wc_cointopay_bank_gateway_class( $gateways ) {
 add_action( 'plugins_loaded', 'woocommerce_cointopay_bank_init' );
 
 function woocommerce_cointopay_bank_init() {
+	if ( ! class_exists('WC_Payment_Gateway') ) return;
 	require_once plugin_dir_path( __FILE__ ) . 'classes/wc_cointopay_bank_gateway.php';
 }
 

@@ -6,6 +6,9 @@
  * @author   Cointopay <info@cointopay.com>
  * @link     cointopay.com
  */
+ 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 	public $msg = [];
 	private $merchant_id;
@@ -26,6 +29,7 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 		$this->init_settings();
 
 		$this->title       = sanitize_text_field($this->get_option('title'));
+		$this->enabled          = $this->get_option('enabled');
 		$this->description = sanitize_text_field($this->get_option('description'));
 		$this->merchant_id = sanitize_text_field($this->get_option('merchant_id'));
 		$this->alt_coin_id = sanitize_text_field($this->get_option('cointopay_bank_alt_coin'));
@@ -46,21 +50,20 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 		));
 
 
-		if (
-			empty($this->settings['enabled']) === false
-			&& empty($this->api_key) === false && empty($this->secret) === false
-		) {
-			$this->enabled = 'yes';
-		} else {
+		// Valid for use.
+		if (empty($this->merchant_id)) {
+			$this->enabled = 'no';
+		} elseif(empty($this->secret)) {
 			$this->enabled = 'no';
 		}
-		// Checking if api key is not empty.
-		if (empty($this->api_key) === true) {
-			add_action('admin_notices', array(&$this, 'api_key_missing_message'));
+
+		// Checking if apikey is not empty.
+		if (empty($this->merchant_id)) {
+			add_action('admin_notices', array( &$this, 'api_key_missing_message' ));
 		}
 
 		// Checking if app_secret is not empty.
-		if (empty($this->secret) === true) {
+		if (empty($this->secret)) {
 			add_action('admin_notices', array(&$this, 'secret_missing_message'));
 		}
 		add_action('admin_enqueue_scripts', array(&$this, 'cointopay_bank_include_custom_js'));
@@ -75,7 +78,7 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 		}
 		wp_enqueue_script('cointopay_bank_js', WC_Cointopay_Bank_Payments::plugin_url() . '/assets/js/ctp_bank_custom.js', array('jquery'), '1.0', false);
 		wp_localize_script('cointopay_bank_js', 'ajaxurlctpbank', array('ajaxurl' => admin_url('admin-ajax.php'),
-        'nonce'    => wp_create_nonce('cointopay_bank_ajax_nonce')));
+        'ctpbanknonce'    => wp_create_nonce('cointopay_bank_ajax_nonce')));
 	}
 	
 	/**
@@ -153,7 +156,7 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 
 	public function payment_fields()
 	{
-		if (true === $this->description) {
+		if (!empty($this->description)) {
 			echo esc_html($this->description);
 		}
 	}
@@ -173,10 +176,24 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 			endforeach;
 		endif;
 		$url      = 'https://app.cointopay.com/MerchantAPI?Checkout=true';
-		$nonce = wp_create_nonce('cointopay_bank_response');
 		$customer_email = $order->get_billing_email();
-		$params   = array(
+		/* $params   = array(
 			'body' => 'email='.$customer_email.'&SecurityCode=' . $this->secret . '&MerchantID=' . $this->merchant_id . '&Amount=' . number_format($order->get_total(), 8, '.', '') . '&AltCoinID=' . $this->alt_coin_id . '&output=json&inputCurrency=' . get_woocommerce_currency() . '&CustomerReferenceNr=' . $order_id . '-' . $order->get_order_number() . '&returnurl=' . rawurlencode(esc_url($this->get_return_url($order))) . '&transactionconfirmurl=' . site_url('/?wc-api=WC_CointopayBank_Gateway&nonce=' . $nonce) . '&transactionfailurl=' . rawurlencode(esc_url($order->get_cancel_order_url())),
+		); */
+		$params = array(
+			'body' => array(
+				'email'                 => $customer_email,
+				'SecurityCode'          => $this->secret,
+				'MerchantID'            => $this->merchant_id,
+				'Amount'                => number_format($order->get_total(), 8, '.', ''),
+				'AltCoinID'             => $this->alt_coin_id,
+				'output'                => 'json',
+				'inputCurrency'         => get_woocommerce_currency(),
+				'CustomerReferenceNr'   => $order_id . '-' . $order->get_order_number(),
+				'returnurl'             => esc_url_raw($this->get_return_url($order)),
+				'transactionconfirmurl' => esc_url_raw(site_url('/?wc-api=WC_CointopayBank_Gateway')),
+				'transactionfailurl'    => esc_url_raw($order->get_cancel_order_url()),
+			),
 		);
 		$response = wp_safe_remote_post($url, $params);
 		if ((false === is_wp_error($response)) && (200 === $response['response']['code']) && ('OK' === $response['response']['message'])) {
@@ -201,11 +218,13 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 		if (is_admin()) {
 			return;
 		}
+		
+		// Nonce verification is not used here because this is a server-to-server callback.
+		// Security is handled via transaction validation and confirm code verification.
 		if(isset($_GET['wc-api']) && isset($_GET['CustomerReferenceNr']) && isset($_GET['TransactionID']))
 		{
 			$ctp_bank = (isset($_GET['wc-api'])) ? sanitize_text_field(wp_unslash($_GET['wc-api'])) : '';
 			if ($ctp_bank == 'WC_CointopayBank_Gateway') {
-				check_ajax_referer('cointopay_bank_response', 'nonce');
 				global $woocommerce;
 				$woocommerce->cart->empty_cart();
 				$order_id                = (isset($_GET['CustomerReferenceNr'])) ? $this->extractOrderId(sanitize_text_field(wp_unslash($_GET['CustomerReferenceNr']))) : 0;
@@ -262,8 +281,8 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 					    $new_status = $order->get_status();
 						// Add order note
 						//$order->add_order_note( __( 'IPN: Update event for Cointopay from status '.$status.' to '.$new_status.':', 'cointopay-com-bank-only' ) . ' ' . $order_id );
-						$message = sprintf( 
-    					__( 'IPN: Update event for Cointopay from status %1$s to %2$s: %3$s', 'cointopay-com-bank-only' ), 
+						/* translators: 1: old order status, 2: new order status, 3: order ID */
+						$message = sprintf(__( 'IPN: Update event for Cointopay from status %1$s to %2$s: %3$s', 'cointopay-com-bank-only' ), 
     					$status, 
     					$new_status,
     					$order_id
@@ -330,5 +349,19 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 		$response = wp_safe_remote_post($url, $params);
 
 		return json_decode($response['body'], true);
+	}
+	
+	public function validate_merchantid_field( $key, $value ) {
+		if ( empty( $value ) ) {
+			WC_Admin_Settings::add_error( __( 'Merchant ID is required.', 'cointopay-com-bank-only' ) );
+		}
+		return $value;
+	}
+
+	public function validate_secret_field( $key, $value ) {
+		if ( empty( $value ) ) {
+			WC_Admin_Settings::add_error( __( 'Security Code is required.', 'cointopay-com-bank-only' ) );
+		}
+		return $value;
 	}
 }//end class

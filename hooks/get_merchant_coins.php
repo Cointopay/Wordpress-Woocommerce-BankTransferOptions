@@ -1,9 +1,16 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 add_action( 'wp_ajax_nopriv_getCTPBankMerchantCoins', 'wc_cointopay_bank_getCTPBankMerchantCoins' );
 add_action( 'wp_ajax_getCTPBankMerchantCoins', 'wc_cointopay_bank_getCTPBankMerchantCoins' );
 function wc_cointopay_bank_getCTPBankMerchantCoins()
 {
-	check_ajax_referer('cointopay_bank_ajax_nonce', 'nonce');
+	$coin_bank_nonce = !empty(sanitize_text_field(wp_unslash($_POST['ctpbanknonce']))) ? sanitize_text_field(wp_unslash($_POST['ctpconfinonce'])) : null;
+	if($coin_bank_nonce) {
+		if ( ! wp_verify_nonce( $coin_bank_nonce, 'cointopay_bank_ajax_nonce' ) ) {
+			echo 'Invalid nonce';
+		}
+	}
 	$merchantId = isset($_REQUEST['merchant']) ? intval($_REQUEST['merchant']) : 0;
 	if ($merchantId !== 0) {
 		$option = '';
