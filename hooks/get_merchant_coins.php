@@ -5,7 +5,7 @@ add_action( 'wp_ajax_nopriv_getCTPBankMerchantCoins', 'wc_cointopay_bank_getCTPB
 add_action( 'wp_ajax_getCTPBankMerchantCoins', 'wc_cointopay_bank_getCTPBankMerchantCoins' );
 function wc_cointopay_bank_getCTPBankMerchantCoins()
 {
-	$coin_bank_nonce = !empty(sanitize_text_field(wp_unslash($_POST['ctpbanknonce']))) ? sanitize_text_field(wp_unslash($_POST['ctpconfinonce'])) : null;
+	$coin_bank_nonce = !empty(sanitize_text_field(wp_unslash($_POST['ctpbanknonce']))) ? sanitize_text_field(wp_unslash($_POST['ctpbanknonce'])) : null;
 	if($coin_bank_nonce) {
 		if ( ! wp_verify_nonce( $coin_bank_nonce, 'cointopay_bank_ajax_nonce' ) ) {
 			echo 'Invalid nonce';
