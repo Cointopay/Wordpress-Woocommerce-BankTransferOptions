@@ -23,7 +23,7 @@ class WC_CointopayBank_Gateway extends WC_Payment_Gateway {
 	public function __construct() {
 		$this->id   = sanitize_key('cointopay_bank');
 		$this->icon = !empty($this->get_option('logo'))
-			? sanitize_text_field($this->get_option('logo')) : WC_Cointopay_Bank_Payments::plugin_url() . '/assets/images/crypto.png';
+			? sanitize_text_field($this->get_option('logo')) : WC_Cointopay_Bank_Payments::plugin_url() . '/assets/images/cointopay_bank.png';
 
 		$this->init_form_fields();
 		$this->init_settings();
